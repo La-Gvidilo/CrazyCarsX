@@ -1,7 +1,7 @@
  1             206940       F.L
- 2             200000       Eric Caen
- 3             180000       Olivier Corviole
- 4             170730       fuck
+ 2             200000       Cyril Coelho
+ 3             180000       La Gvidilo
+ 4             170730       Soft
  5             160000       JC Meyrignac
  6             150000       Gil Espeche
  7             140000       David Whittaker
