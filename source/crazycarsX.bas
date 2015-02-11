@@ -35,6 +35,12 @@ pleinecran$ = "non"
 gameover$ = "non"
 credits$ = "non"
 
+
+Haut$ = CHR$(0) + CHR$(72)
+Bas$ = CHR$(0) + CHR$(80)
+Gauche$ = CHR$(0) + CHR$(75)
+Droite$ = CHR$(0) + CHR$(77)
+
 ' chargement des credits
 
 DIM rank(16)
@@ -183,30 +189,79 @@ _COPYPALETTE , decor
 _PUTIMAGE (24, 46), decor
 
 _DISPLAY
+REM CHARGEMENT DU SON DU MENU
+menu_son0& = _SNDOPEN ("data/sons/m0.ogg")
 
+
+
+Cpos = 0
+LimiteCpos:
+SELECT CASE Cpos
+    CASE IS < 0
+        Cpos = 4
+    CASE IS > 4
+        Cpos = 0
+END SELECT
 DO
 
     COLOR 15: _PRINTMODE _FILLBACKGROUND
-    LOCATE 17, 9: PRINT "       1- start          "
-    LOCATE 18, 9: PRINT "                         "
-    IF pleinecran$ = "non" THEN LOCATE 19, 9: PRINT "       2- fullscreen     "
-    IF pleinecran$ = "oui" THEN LOCATE 19, 9: PRINT "       2- fullscreen off "
-    LOCATE 20, 9: PRINT "       3- credits        "
-    LOCATE 21, 9: PRINT "       4- hiscore        "
-    LOCATE 23, 9: PRINT "       7- EXIT           "
+    LOCATE 18, 9: PRINT "        start        "
+    REM LOCATE 18, 9: PRINT "                         "
+    IF pleinecran$ = "non" THEN LOCATE 19, 9: PRINT "        fullscreen   "
+    IF pleinecran$ = "oui" THEN LOCATE 19, 9: PRINT "        fullscreen off"
+    LOCATE 20, 9: PRINT "        credits      "
+    LOCATE 21, 9: PRINT "        hiscore      "
+    LOCATE 22, 9: PRINT "        EXIT         "
+    FOR T = 0 TO 4
+        LOCATE (19) + T - 1, 13
+        PRINT " ";
+        IF T = Cpos THEN
+            LOCATE (19) + Cpos - 1, 13
+            PRINT ">>>>";
+        END IF
+        
 
+    NEXT T
     _DISPLAY
-    SLEEP
+    touche$ = INKEY$
+    SELECT CASE touche$
+        CASE IS = Haut$ 'haut
+			_SNDPLAY menu_son0&
+            Cpos = Cpos - 1
+            GOTO LimiteCpos
+        CASE IS = Bas$ 'bas
+			_SNDPLAY menu_son0&
+            Cpos = Cpos + 1
+            GOTO LimiteCpos
+        CASE IS = CHR$(13)
+            SELECT CASE Cpos
+                CASE IS = 0 'Start
+					_SNDCLOSE menu_son0&
+					_SNDPLAYFILE ("data/sons/m1.ogg")
+					_DELAY 3
+                    GOTO variables
+                CASE IS = 1 'fullscreen on/off
+                    IF pleinecran$ = "non" THEN _FULLSCREEN: pleinecran$ = "oui": GOTO debut
+                    IF pleinecran$ = "oui" THEN _FULLSCREEN _OFF: pleinecran$ = "non": GOTO debut
 
-    IF _KEYDOWN(49) or _KEYDOWN(32) THEN GOTO variables
-    IF _KEYDOWN(50) THEN
-        IF pleinecran$ = "non" THEN _FULLSCREEN: pleinecran$ = "oui": GOTO debut
-        IF pleinecran$ = "oui" THEN _FULLSCREEN _OFF: pleinecran$ = "non": GOTO debut
-    END IF
-    IF _KEYDOWN(51) THEN GOTO credits
-    IF _KEYDOWN(52) THEN GOTO hiscore
-    IF _KEYDOWN(55) THEN END
-    IF _KEYDOWN(27) THEN END
+                CASE IS = 2 'credits
+                    GOTO credits
+                CASE IS = 3 'Hi-score
+                    GOTO hiscore
+                CASE IS = 4 'EXIT
+                    END
+            END SELECT
+    END SELECT
+
+    'IF _KEYDOWN(49) OR _KEYDOWN(32) THEN GOTO variables
+    'IF _KEYDOWN(50) THEN
+    '    IF pleinecran$ = "non" THEN _FULLSCREEN: pleinecran$ = "oui": GOTO debut
+    '    IF pleinecran$ = "oui" THEN _FULLSCREEN _OFF: pleinecran$ = "non": GOTO debut
+    'END IF
+    'IF _KEYDOWN(51) THEN GOTO credits
+    'IF _KEYDOWN(52) THEN GOTO hiscore
+    'IF _KEYDOWN(55) THEN END
+    'IF _KEYDOWN(27) THEN END
 
 LOOP
 
@@ -1062,39 +1117,39 @@ DO
 
     '                                        ciel bleu
     LINE (32, 0)-(288, 129), 11, BF
-	'IF EtatProjectile=1 THEN LINE (32, 129)-(32+8, 95), 0, BF:BEEP'
-	'LINE (32, 129)-(32+8, 95), 0, BF
-	'										CE QUI CE PASSE DANS CE PUTIN DE CIEL
-	IF vitessecompteur > 190 THEN
-		IF YEAR=2014 THEN
-			IF EtatProjectile =0 THEN 
-				IF chrono<>SAVETIMEProj THEN 
-					SAVETIMEProjCnt=SAVETIMEProjCnt+1
-					IF SAVETIMEProjCnt>50 THEN
-						for t= 400 to 0 step -150
-							sound 500+t,.1
-						next t
-						SAVETIMEProjCnt=0: EtatProjectile=1: ProjectileX=int(rnd*(288-32)): ProjectileY=0
-					END IF 
-				END IF 
-			END IF 
-		END IF
-	END IF
-	
-	IF EtatProjectile=1 THEN
-		ProjectileY=ProjectileY+2.5
-		IF ProjPHASE=0 THEN IF 95-ProjectileY<2 THEN ProjPHASE=1 :ProjectileY=0
-		IF ProjPHASE=1 THEN IF 129-ProjectileY<2 THEN ProjPHASE=0 :ProjectileY=0:EtatProjectile=-1
-		'IF ProjectileX > 287 THEN EtatProjectile=0:SAVETIMEProj=chrono
-		'IF ProjectileY < 2 THEN EtatProjectile=0:SAVETIMEProj=chrono
-		SELECT CASE ProjPHASE
-		CASE IS = 0
-			LINE (32+ProjectileX, 129)-(32+4+ProjectileX, 95-ProjectileY), 0, BF
-		CASE IS = 1
-			LINE (32+ProjectileX, 129-ProjectileY)-(32+4+ProjectileX, 0), 0, BF
-		END SELECT
-	END IF
-	
+    'IF EtatProjectile=1 THEN LINE (32, 129)-(32+8, 95), 0, BF:BEEP'
+    'LINE (32, 129)-(32+8, 95), 0, BF
+    '                                       CE QUI CE PASSE DANS CE PUTIN DE CIEL
+    IF vitessecompteur > 190 THEN
+        IF YEAR = 2014 THEN
+            IF EtatProjectile = 0 THEN
+                IF chrono <> SAVETIMEProj THEN
+                    SAVETIMEProjCnt = SAVETIMEProjCnt + 1
+                    IF SAVETIMEProjCnt > 50 THEN
+                        FOR T = 400 TO 0 STEP -150
+                            SOUND 500 + T, .1
+                        NEXT T
+                        SAVETIMEProjCnt = 0: EtatProjectile = 1: ProjectileX = INT(RND * (288 - 32)): ProjectileY = 0
+                    END IF
+                END IF
+            END IF
+        END IF
+    END IF
+    
+    IF EtatProjectile = 1 THEN
+        ProjectileY = ProjectileY + 2.5
+        IF ProjPHASE = 0 THEN IF 95 - ProjectileY < 2 THEN ProjPHASE = 1: ProjectileY = 0
+        IF ProjPHASE = 1 THEN IF 129 - ProjectileY < 2 THEN ProjPHASE = 0: ProjectileY = 0: EtatProjectile = -1
+        'IF ProjectileX > 287 THEN EtatProjectile=0:SAVETIMEProj=chrono
+        'IF ProjectileY < 2 THEN EtatProjectile=0:SAVETIMEProj=chrono
+        SELECT CASE ProjPHASE
+            CASE IS = 0
+                LINE (32 + ProjectileX, 129)-(32 + 4 + ProjectileX, 95 - ProjectileY), 0, BF
+            CASE IS = 1
+                LINE (32 + ProjectileX, 129 - ProjectileY)-(32 + 4 + ProjectileX, 0), 0, BF
+        END SELECT
+    END IF
+    
     '                                          decor
 
     _PUTIMAGE (Xdecor1, 101), ville
@@ -1106,7 +1161,7 @@ DO
     COLOR 0: _PRINTMODE _KEEPBACKGROUND
     LOCATE 1, 6: PRINT "SCORE": LOCATE 2, 6: PRINT score
     LOCATE 1, 15: PRINT "HI": LOCATE 2, 15: PRINT score(1)
-	LOCATE 3, 6: PRINT "YEAR "+str$(YEAR)
+    LOCATE 3, 6: PRINT "YEAR " + STR$(YEAR)
 
     '                               affichage de la vitesse
 
@@ -1173,40 +1228,40 @@ DO
     _PUTIMAGE (Xcar, Ycar), voiture
 
 
-	
-	'								Le tir d'octet du vide ... xP
-	
-	IF EtatProjectile=-1 THEN
-		SELECT CASE ProjPHASE
-		CASE IS= 0,1
-			ProjectileY=ProjectileY+7.7
-		CASE IS= 2
-			ProjectileR=ProjectileR+2
-			IF  (Xcar > (32+ProjectileX)-ProjectileR) AND (Xcar < (32+ProjectileX)+ProjectileR) OR (Xcar+72 > (32+ProjectileX)-ProjectileR) AND (Xcar+72 < (32+ProjectileX)+ProjectileR) OR (Xcar+int(72/2) > (32+ProjectileX)-ProjectileR) AND (Xcar+int(72/2) < (32+ProjectileX)+ProjectileR) THEN
-				accident$ = "oui": refsaut = temps 
-				sonoccupe$ = "non":
-				IF soncrash$ = "non" THEN _SNDPLAYFILE "data/sons/crash.ogg": soncrash$ = "oui"
-			END IF
-		END SELECT
-		
-		IF ProjPHASE=0 THEN IF ProjectileY>195 THEN ProjPHASE=1 :ProjectileY=0
-		IF ProjPHASE=1 THEN IF 0+ProjectileY=>195 THEN ProjPHASE=2 :ProjectileY=0:ProjectileR=0
-		IF ProjPHASE=2 THEN IF ProjectileR>40 THEN ProjPHASE=0 :ProjectileR=0:EtatProjectile=0
-		'IF ProjectileX > 287 THEN EtatProjectile=0:SAVETIMEProj=chrono
-		'IF ProjectileY < 2 THEN EtatProjectile=0:SAVETIMEProj=chrono
-		SELECT CASE ProjPHASE
-		CASE IS = 0
-			LINE (32+ProjectileX-8, 0)-(32+16+ProjectileX, 0+ProjectileY), 0, BF
-		CASE IS = 1
-			LINE (32+ProjectileX-8, 0+ProjectileY)-(32+16+ProjectileX, 195), 0, BF
-		CASE IS = 2
-			FOR T=0 TO ProjectileR STEP 1
-				CIRCLE (32+ProjectileX, 185), ProjectileR-T, int(0+t/2)
-			NEXT T
-			sound 440,.2
-		END SELECT
-	END IF
-	
+    
+    '                               Le tir d'octet du vide ... xP
+    
+    IF EtatProjectile = -1 THEN
+        SELECT CASE ProjPHASE
+            CASE IS = 0, 1
+                ProjectileY = ProjectileY + 7.7
+            CASE IS = 2
+                ProjectileR = ProjectileR + 2
+                IF (Xcar > (32 + ProjectileX) - ProjectileR) AND (Xcar < (32 + ProjectileX) + ProjectileR) OR (Xcar + 72 > (32 + ProjectileX) - ProjectileR) AND (Xcar + 72 < (32 + ProjectileX) + ProjectileR) OR (Xcar + INT(72 / 2) > (32 + ProjectileX) - ProjectileR) AND (Xcar + INT(72 / 2) < (32 + ProjectileX) + ProjectileR) THEN
+                    accident$ = "oui": refsaut = temps
+                    sonoccupe$ = "non":
+                    IF soncrash$ = "non" THEN _SNDPLAYFILE "data/sons/crash.ogg": soncrash$ = "oui"
+                END IF
+        END SELECT
+        
+        IF ProjPHASE = 0 THEN IF ProjectileY > 195 THEN ProjPHASE = 1: ProjectileY = 0
+        IF ProjPHASE = 1 THEN IF 0 + ProjectileY >= 195 THEN ProjPHASE = 2: ProjectileY = 0: ProjectileR = 0
+        IF ProjPHASE = 2 THEN IF ProjectileR > 40 THEN ProjPHASE = 0: ProjectileR = 0: EtatProjectile = 0
+        'IF ProjectileX > 287 THEN EtatProjectile=0:SAVETIMEProj=chrono
+        'IF ProjectileY < 2 THEN EtatProjectile=0:SAVETIMEProj=chrono
+        SELECT CASE ProjPHASE
+            CASE IS = 0
+                LINE (32 + ProjectileX - 8, 0)-(32 + 16 + ProjectileX, 0 + ProjectileY), 0, BF
+            CASE IS = 1
+                LINE (32 + ProjectileX - 8, 0 + ProjectileY)-(32 + 16 + ProjectileX, 195), 0, BF
+            CASE IS = 2
+                FOR T = 0 TO ProjectileR STEP 1
+                    CIRCLE (32 + ProjectileX, 185), ProjectileR - T, INT(0 + T / 2)
+                NEXT T
+                SOUND 440, .2
+        END SELECT
+    END IF
+    
     ' bords noirs
     LINE (0, 0)-(31, 200), 0, BF
     LINE (289, 0)-(320, 200), 0, BF
@@ -1258,17 +1313,17 @@ GOTO noexist
 
 TO2014:
 
-FOR t = 0 TO INT(RND * 5)
-	sound 220+10*t,.1
+FOR T = 0 TO INT(RND * 5)
+    SOUND 220 + 10 * T, .1
     LINE (31, 200)-(289, 0), 15, BF
     _DISPLAY
     _DELAY 0.150
-	sound 440+10*t,.1
+    SOUND 440 + 10 * T, .1
     LINE (31, 200)-(289, 0), 7, BF
     _DISPLAY
     _DELAY 0.075
-NEXT t
-YEAR=2014
+NEXT T
+YEAR = 2014
 ville = _LOADIMAGE("data/sprites/decor-futur.gif")
 
 RETURN
