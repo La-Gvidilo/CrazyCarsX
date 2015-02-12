@@ -7,7 +7,7 @@
  7             140000       David Whittaker
  8             130000       Lou Gorenfeld
  9             120000       Eric Cubizolle
- 10            118390       noooo
+ 10            118390       noob
  11            110000       Dr Floyd
  12            100000       FF_Clad
  13            90000        QB64
