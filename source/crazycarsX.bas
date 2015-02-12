@@ -217,7 +217,11 @@ DO
         PRINT " ";
         IF T = Cpos THEN
             LOCATE (19) + Cpos - 1, 13
+<<<<<<< HEAD
             PRINT "   >";
+=======
+            PRINT ">>>>";
+>>>>>>> origin/CrazyCarsX'
         END IF
         
 
@@ -234,9 +238,15 @@ DO
             Cpos = Cpos + 1
             GOTO LimiteCpos
         CASE IS = CHR$(13)
+<<<<<<< HEAD
 			_SNDCLOSE menu_son0&
             SELECT CASE Cpos
                 CASE IS = 0 'Start
+=======
+            SELECT CASE Cpos
+                CASE IS = 0 'Start
+					_SNDCLOSE menu_son0&
+>>>>>>> origin/CrazyCarsX'
 					_SNDPLAYFILE ("data/sons/m1.ogg")
 					_DELAY 3
                     GOTO variables
